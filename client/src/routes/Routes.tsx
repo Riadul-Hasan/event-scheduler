@@ -5,6 +5,7 @@ import AddEvent from "../Pages/Add Event/AddEvent";
 import Home from "../Pages/Home/Home";
 import AllEvents from "../Pages/AllEvents/AllEvents";
 import ArchivePage from "../Pages/Archive/ArchivePage";
+import ErrorPage from "../Pages/ErrorPage/ErrorPage";
 
 export const router = createBrowserRouter([
   {
@@ -28,5 +29,9 @@ export const router = createBrowserRouter([
         Component: ArchivePage,
       },
     ],
+  },
+  {
+    path: "*",
+    Component: ErrorPage,
   },
 ]);
