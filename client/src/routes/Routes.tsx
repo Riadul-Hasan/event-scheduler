@@ -3,6 +3,7 @@ import RootLayout from "../Layout/RootLayout";
 
 import AddEvent from "../Pages/Add Event/AddEvent";
 import Home from "../Pages/Home/Home";
+import AllEvents from "../Pages/AllEvents/AllEvents";
 
 export const router = createBrowserRouter([
   {
@@ -16,6 +17,10 @@ export const router = createBrowserRouter([
       {
         path: "/addEvents",
         Component: AddEvent,
+      },
+      {
+        path: "/allEvents",
+        Component: AllEvents,
       },
     ],
   },

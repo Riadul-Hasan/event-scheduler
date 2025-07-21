@@ -9,7 +9,7 @@ const Navbar = () => {
   const location = useLocation();
 
   const navItems = [
-    { name: "Dashboard", path: "/", icon: <FiCalendar className="mr-2" /> },
+    { name: "Home", path: "/", icon: <FiCalendar className="mr-2" /> },
     {
       name: "Create Event",
       path: "/create",
