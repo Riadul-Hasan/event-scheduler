@@ -149,6 +149,33 @@ async function run() {
         res.status(500).json({ message: "Failed to archive event." });
       }
     });
+    app.get("/events/archived", async (req, res) => {
+      try {
+        console.log("🔹 Incoming GET /events/archived");
+
+        if (!eventsCollection) {
+          console.error("❌ eventsCollection is undefined");
+          return res
+            .status(500)
+            .json({ message: "Events collection is not initialized" });
+        }
+
+        const events = await eventsCollection
+          .find({ archived: true })
+          .sort({ date: 1, time: 1 })
+          .toArray();
+
+        console.log(`✅ Found ${events.length} archived events`);
+        res.status(200).json(events);
+      } catch (error) {
+        console.error("❌ Error fetching archived events:", error);
+        res.status(500).json({
+          message: "Failed to fetch archived events",
+          error: error.message,
+          stack: error.stack,
+        });
+      }
+    });
 
     app.put("/events/:id/unarchive", async (req, res) => {
       try {

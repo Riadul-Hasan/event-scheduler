@@ -120,14 +120,16 @@ export default function HeroSection() {
                   </motion.button>
                 </Link>
 
-                <motion.button
-                  whileHover={{ y: -3 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="bg-white/10 hover:bg-white/20 text-white px-8 py-4 rounded-xl font-medium flex items-center justify-center transition-all"
-                >
-                  See How It Works
-                  <FiChevronRight className="ml-2" />
-                </motion.button>
+                <Link to="/archive">
+                  <motion.button
+                    whileHover={{ y: -3 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="bg-white/10 hover:bg-white/20 text-white px-8 py-4 rounded-xl font-medium flex items-center justify-center transition-all"
+                  >
+                    Archived Ones
+                    <FiChevronRight className="ml-2" />
+                  </motion.button>
+                </Link>
               </div>
             </motion.div>
           </div>

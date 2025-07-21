@@ -11,13 +11,13 @@ const Navbar = () => {
   const navItems = [
     { name: "Home", path: "/", icon: <FiCalendar className="mr-2" /> },
     {
-      name: "Create Event",
-      path: "/create",
+      name: "Add Event",
+      path: "/addEvents",
       icon: <FiPlus className="mr-2" />,
     },
     {
-      name: "Categories",
-      path: "/categories",
+      name: "All Events",
+      path: "/allEvents",
       icon: <FiSun className="mr-2" />,
     },
   ];

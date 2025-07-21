@@ -12,6 +12,7 @@ import {
   FiLayers,
 } from "react-icons/fi";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 type Event = {
   id: string;
@@ -92,11 +93,34 @@ const AllEvents: React.FC = () => {
   }, []);
 
   const deleteEvent = async (id: string) => {
-    try {
-      await axios.delete(`${API_URL}/events/${id}`);
-      setEvents((prev) => prev.filter((e) => e.id !== id));
-    } catch {
-      setError("Failed to delete event.");
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await axios.delete(`${API_URL}/events/${id}`);
+        setEvents((prev) => prev.filter((e) => e.id !== id));
+
+        Swal.fire({
+          title: "Deleted!",
+          text: "Your event has been deleted.",
+          icon: "success",
+        });
+      } catch {
+        setError("Failed to delete event.");
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Failed to delete event",
+        });
+      }
     }
   };
 
@@ -106,8 +130,24 @@ const AllEvents: React.FC = () => {
       setEvents((prev) =>
         prev.map((e) => (e.id === id ? { ...e, archived: true } : e))
       );
+      Swal.fire({
+        title: "Archived!",
+        text: "Event has been archived.",
+        icon: "success",
+        background: "#0f172a",
+        color: "#e2e8f0",
+        confirmButtonColor: "#6366f1",
+      });
     } catch {
       setError("Failed to archive event.");
+      Swal.fire({
+        title: "Error",
+        text: "Failed to archive event.",
+        icon: "error",
+        background: "#0f172a",
+        color: "#e2e8f0",
+        confirmButtonColor: "#6366f1",
+      });
     }
   };
 
