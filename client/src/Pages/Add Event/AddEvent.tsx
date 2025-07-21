@@ -42,6 +42,7 @@ const AddEvent: React.FC = () => {
   const bgY = useMotionValue(0);
   const rotate = useMotionValue(0);
 
+  console.log(activeField);
   const x1 = useTransform(bgX, [0, 100], [0, -20]);
   const x2 = useTransform(bgY, [0, 100], [0, 40]);
   const y1 = useTransform(bgY, [0, 100], [0, -30]);
@@ -87,7 +88,7 @@ const AddEvent: React.FC = () => {
 
     try {
       const response = await axios.post<EventResponse>(
-        "http://localhost:3000/events",
+        "https://event-scheduler-server-gamma.vercel.app/events",
         {
           title: formData.title,
           date: formData.date,

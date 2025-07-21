@@ -72,7 +72,7 @@ const ArchivePage: React.FC = () => {
       try {
         // ✅ Correct API endpoint
         const response = await axios.get(
-          "http://localhost:3000/events/archived"
+          "https://event-scheduler-server-gamma.vercel.app/events/archived"
         );
 
         if (!Array.isArray(response.data)) {
@@ -102,7 +102,9 @@ const ArchivePage: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      await axios.delete(`http://localhost:3000/events/${id}`);
+      await axios.delete(
+        `https://event-scheduler-server-gamma.vercel.app/events/${id}`
+      );
       setArchivedEvents((prev) => prev.filter((event) => event._id !== id));
       Swal.fire({
         title: "Deleted!",

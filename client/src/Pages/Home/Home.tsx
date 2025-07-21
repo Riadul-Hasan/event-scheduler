@@ -1,4 +1,4 @@
-import React from "react";
+// import React from "react";
 import HeroSection from "./HomeComponents/HeroSection";
 import UpcomingEvents from "./HomeComponents/UpcomingEvents";
 import AICategorization from "./HomeComponents/AiCategorization";

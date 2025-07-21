@@ -20,7 +20,7 @@ const UpcomingEvents = () => {
     const fetchUpcomingEvents = async () => {
       try {
         const response = await axios.get<Event[]>(
-          "http://localhost:3000/events/upcoming"
+          "https://event-scheduler-server-gamma.vercel.app/events/upcoming"
         );
         setEvents(response.data || []);
       } catch (error) {
@@ -228,7 +228,7 @@ const UpcomingEvents = () => {
               transition={{ delay: 0.6 }}
               className="flex justify-center mt-16"
             >
-              <Link to="/events">
+              <Link to="/allEvents">
                 <motion.button
                   whileHover={{
                     y: -3,
