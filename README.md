@@ -10,17 +10,17 @@ A full-stack event management system with AI-powered categorization and archive 
 - MongoDB Atlas account or local MongoDB
 - Git
 
-Configure Environment
-
-# Backend configuration
-cd server
-cp .env.example .env
-# Edit with your MongoDB credentials
-nano .env
-
-# Frontend configuration
-cd ../client
-cp .env.example .env
+### Project Structure
+event-scheduler/
+├── client/                 # React Frontend (PORT 5173)
+│   ├── src/                # Application source
+│   └── vite.config.ts      # Build configuration
+│
+├── server/                 # Express Backend (PORT 3000)
+│   ├── models/             # MongoDB schemas
+│   └── routes/             # API endpoints
+│
+└── README.md               # This document
 
 
 ### 1. Clone & Setup
