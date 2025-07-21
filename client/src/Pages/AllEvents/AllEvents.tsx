@@ -1,5 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { FiTag, FiTrash2, FiArchive } from "react-icons/fi";
+import { motion, useMotionValue, useTransform, animate } from "framer-motion";
+import {
+  FiTag,
+  FiTrash2,
+  FiArchive,
+  FiSearch,
+  FiCalendar,
+  FiClock,
+  FiCpu,
+  FiZap,
+  FiLayers,
+} from "react-icons/fi";
 import axios from "axios";
 
 type Event = {
@@ -18,12 +29,6 @@ const categoryColors: Record<Event["category"], string> = {
   Other: "text-purple-400",
 };
 
-const categoryBg: Record<Event["category"], string> = {
-  Work: "bg-indigo-900/20 border-indigo-700/30",
-  Personal: "bg-pink-900/20 border-pink-700/30",
-  Other: "bg-purple-900/20 border-purple-700/30",
-};
-
 const API_URL = import.meta.env.VITE_API_URL;
 
 const AllEvents: React.FC = () => {
@@ -33,19 +38,35 @@ const AllEvents: React.FC = () => {
   const [filter, setFilter] = useState<"All" | Event["category"]>("All");
   const [search, setSearch] = useState("");
 
+  const bgX = useMotionValue(0);
+  const bgY = useMotionValue(0);
+  const rotate = useMotionValue(0);
+
+  const x1 = useTransform(bgX, [0, 100], [0, -20]);
+  const x2 = useTransform(bgY, [0, 100], [0, 40]);
+  const y1 = useTransform(bgY, [0, 100], [0, -30]);
+  const y2 = useTransform(bgX, [0, 100], [0, 50]);
+
+  useEffect(() => {
+    const animateBg = async () => {
+      while (true) {
+        await animate(bgX, 100, { duration: 30, ease: "linear" });
+        await animate(bgX, 0, { duration: 0 });
+        await animate(bgY, 100, { duration: 25, ease: "linear" });
+        await animate(bgY, 0, { duration: 0 });
+        await animate(rotate, 360, { duration: 40, ease: "linear" });
+        await animate(rotate, 0, { duration: 0 });
+      }
+    };
+    animateBg();
+  }, []);
+
   useEffect(() => {
     const fetchEvents = async () => {
       setLoading(true);
       setError(null);
       try {
         const response = await axios.get(`${API_URL}/events`);
-
-        if (!Array.isArray(response.data)) {
-          console.error("Invalid API response:", response.data);
-          setError("Server returned invalid data.");
-          return;
-        }
-
         const mapped: Event[] = response.data.map((e: any) => ({
           id: e._id,
           title: e.title,
@@ -55,135 +76,213 @@ const AllEvents: React.FC = () => {
           category: e.category ?? "Other",
           archived: e.archived ?? false,
         }));
-
-        mapped.sort((a, b) => {
-          const dateTimeA = new Date(`${a.date}T${a.time}`).getTime();
-          const dateTimeB = new Date(`${b.date}T${b.time}`).getTime();
-          return dateTimeA - dateTimeB;
-        });
-
+        mapped.sort(
+          (a, b) =>
+            new Date(`${a.date}T${a.time}`).getTime() -
+            new Date(`${b.date}T${b.time}`).getTime()
+        );
         setEvents(mapped);
-      } catch (err) {
-        console.error(err);
+      } catch {
         setError("Failed to load events.");
       } finally {
         setLoading(false);
       }
     };
-
     fetchEvents();
   }, []);
 
   const deleteEvent = async (id: string) => {
     try {
       await axios.delete(`${API_URL}/events/${id}`);
-      setEvents((prev) => prev.filter((event) => event.id !== id));
-    } catch (err) {
-      console.error(err);
+      setEvents((prev) => prev.filter((e) => e.id !== id));
+    } catch {
       setError("Failed to delete event.");
     }
   };
 
   const archiveEvent = async (id: string) => {
     try {
-      await axios.put(`${API_URL}/events/${id}`);
+      await axios.put(`${API_URL}/events/${id}`, { archived: true });
       setEvents((prev) =>
-        prev.map((event) =>
-          event.id === id ? { ...event, archived: true } : event
-        )
+        prev.map((e) => (e.id === id ? { ...e, archived: true } : e))
       );
-    } catch (err) {
-      console.error(err);
+    } catch {
       setError("Failed to archive event.");
     }
   };
 
-  const filteredEvents = events.filter((event) => {
-    if (filter !== "All" && event.category !== filter) return false;
+  const filteredEvents = events.filter((e) => {
+    if (filter !== "All" && e.category !== filter) return false;
     if (search.trim() !== "") {
-      const combined = `${event.title} ${event.notes ?? ""}`.toLowerCase();
-      return combined.includes(search.trim().toLowerCase());
+      return `${e.title} ${e.notes ?? ""}`
+        .toLowerCase()
+        .includes(search.trim().toLowerCase());
     }
     return true;
   });
 
   return (
-    <div className="max-w-3xl mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-4 text-white">All Events</h2>
+    <div
+      className="min-h-screen py-20 bg-gradient-to-br from-slate-900 to-slate-950 overflow-hidden relative"
+      onMouseMove={(e) => {
+        bgX.set((e.clientX / window.innerWidth) * 100);
+        bgY.set((e.clientY / window.innerHeight) * 100);
+      }}
+    >
+      {/* Animated Backgrounds */}
+      <motion.div
+        style={{ x: x1, y: y1, rotate }}
+        className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-indigo-900/20 blur-3xl -z-10"
+      />
+      <motion.div
+        style={{ x: x2, y: y1, rotate }}
+        className="absolute top-1/3 right-1/4 w-96 h-96 rounded-full bg-purple-900/15 blur-3xl -z-10"
+      />
+      <motion.div
+        style={{ x: x1, y: y2, rotate }}
+        className="absolute bottom-1/4 left-1/3 w-80 h-80 rounded-full bg-blue-900/10 blur-3xl -z-10"
+      />
 
-      {/* Filter + Search */}
-      <div className="flex flex-col sm:flex-row sm:justify-between gap-4 mb-4">
-        <div className="flex gap-2">
-          {["All", "Work", "Personal", "Other"].map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setFilter(cat as any)}
-              className={`px-3 py-1 rounded-full border ${
-                filter === cat
-                  ? "bg-slate-700 border-slate-500 text-white"
-                  : "border-slate-700 text-slate-400"
+      {/* Floating Icons */}
+      <motion.div
+        animate={{ y: [0, -20, 0] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-20 left-20 text-indigo-500/20 text-6xl"
+      >
+        <FiCpu />
+      </motion.div>
+      <motion.div
+        animate={{ y: [0, 30, 0] }}
+        transition={{
+          duration: 10,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 2,
+        }}
+        className="absolute bottom-20 right-20 text-purple-500/15 text-7xl"
+      >
+        <FiLayers />
+      </motion.div>
+      <motion.div
+        animate={{ y: [0, -15, 0, 15, 0], x: [0, 20, 0, -20, 0] }}
+        transition={{
+          duration: 12,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 1,
+        }}
+        className="absolute top-1/2 left-1/4 text-blue-500/10 text-5xl"
+      >
+        <FiZap />
+      </motion.div>
+
+      <div className="container mx-auto px-4 relative z-10">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
+        >
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-3">
+            Your <span className="text-indigo-400">Events</span>
+          </h1>
+          <p className="text-slate-400">
+            Manage all your scheduled events with ease
+          </p>
+        </motion.div>
+
+        {/* Filters and Search */}
+        <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
+          <div className="flex gap-2 flex-wrap">
+            {["All", "Work", "Personal", "Other"].map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setFilter(cat as any)}
+                className={`px-3 py-1 rounded-full text-sm font-medium transition ${
+                  filter === cat
+                    ? "bg-indigo-600 text-white"
+                    : "bg-slate-700 text-slate-300 hover:bg-slate-600"
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+          <div className="relative w-full md:w-64">
+            <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search events..."
+              className="w-full pl-10 pr-3 py-2 rounded-lg bg-slate-800 text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+        </div>
+
+        {loading && (
+          <div className="text-center text-slate-400">Loading events...</div>
+        )}
+        {error && <div className="text-center text-red-400">{error}</div>}
+
+        {!loading && filteredEvents.length === 0 && (
+          <div className="text-center text-slate-400 mt-10">
+            No events found.
+          </div>
+        )}
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+          {filteredEvents.map((event) => (
+            <motion.div
+              key={event.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className={`p-5 rounded-xl bg-slate-700/50 border border-slate-500/30 shadow hover:shadow-lg transition ${
+                event.archived ? "opacity-60" : ""
               }`}
             >
-              {cat}
-            </button>
+              <div className="flex justify-between items-center mb-2">
+                <div className="flex items-center gap-2">
+                  <FiTag className={`${categoryColors[event.category]}`} />
+                  <span className="text-slate-200 text-sm">
+                    {event.category} {event.archived && "(Archived)"}
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  {!event.archived && (
+                    <button
+                      onClick={() => archiveEvent(event.id)}
+                      title="Archive"
+                      className="text-slate-300 hover:text-indigo-400"
+                    >
+                      <FiArchive />
+                    </button>
+                  )}
+                  <button
+                    onClick={() => deleteEvent(event.id)}
+                    title="Delete"
+                    className="text-slate-300 hover:text-red-400"
+                  >
+                    <FiTrash2 />
+                  </button>
+                </div>
+              </div>
+              <h2 className="text-lg font-semibold text-slate-100 mb-1">
+                {event.title}
+              </h2>
+              <div className="flex items-center gap-3 text-slate-300 text-sm mb-1">
+                <FiCalendar />
+                <span>{new Date(event.date).toLocaleDateString()}</span>
+                <FiClock />
+                <span>{event.time}</span>
+              </div>
+              {event.notes && (
+                <p className="text-slate-300 text-sm mt-1">{event.notes}</p>
+              )}
+            </motion.div>
           ))}
         </div>
-        <input
-          type="text"
-          placeholder="Search events..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="px-3 py-2 rounded-md border border-slate-700 bg-slate-800 text-slate-200 placeholder-slate-400"
-        />
-      </div>
-
-      {loading && <p className="text-slate-400">Loading events...</p>}
-      {error && <p className="text-red-500">{error}</p>}
-
-      {!loading && !error && filteredEvents.length === 0 && (
-        <p className="text-slate-400">No events found.</p>
-      )}
-
-      <div className="space-y-4">
-        {filteredEvents.map((event) => (
-          <div
-            key={event.id}
-            className={`p-4 rounded-lg border ${categoryBg[event.category]} ${
-              event.archived ? "opacity-50" : ""
-            }`}
-          >
-            <div className="flex items-center mb-2">
-              <FiTag className={`mr-2 ${categoryColors[event.category]}`} />
-              <span className="text-sm text-slate-400">
-                {event.category} {event.archived && "(Archived)"}
-              </span>
-            </div>
-            <h3 className="text-lg font-semibold text-white">{event.title}</h3>
-            <p className="text-slate-400">
-              {event.date} at {event.time}
-            </p>
-            {event.notes && (
-              <p className="text-slate-300 mt-1">{event.notes}</p>
-            )}
-
-            <div className="flex gap-3 mt-4">
-              <button
-                onClick={() => deleteEvent(event.id)}
-                className="flex items-center text-red-400 hover:text-red-500"
-              >
-                <FiTrash2 className="mr-1" /> Delete
-              </button>
-              {!event.archived && (
-                <button
-                  onClick={() => archiveEvent(event.id)}
-                  className="flex items-center text-slate-400 hover:text-slate-200"
-                >
-                  <FiArchive className="mr-1" /> Archive
-                </button>
-              )}
-            </div>
-          </div>
-        ))}
       </div>
     </div>
   );
